@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Competence · Production Map · Zsolt Zsofka</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #120d05;
+    color: #e0d4b0;
+    font-family: 'Cormorant Garamond', serif;
+    min-height: 100vh;
+  }
+
+  /* ── PAGE HEADER ── */
+  .page-header {
+    text-align: center;
+    padding: 36px 24px 28px;
+    border-bottom: 1px solid rgba(200,168,75,0.15);
+  }
+  .eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: #c8a84b;
+    opacity: 0.65;
+    margin-bottom: 10px;
+  }
+  .page-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 30px;
+    font-weight: 300;
+    font-style: italic;
+    color: #e8dfc0;
+    letter-spacing: 0.02em;
+  }
+  .page-title em { color: #c8a84b; font-style: italic; }
+  .page-sub {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    color: #6a5830;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin-top: 8px;
+  }
+
+  /* ── MAP SECTION ── */
+  .map-wrap {
+    overflow-x: auto;
+    padding: 0;
+  }
+  .map-svg {
+    display: block;
+    margin: 0 auto;
+    max-width: 100%;
+  }
+
+  /* SVG hover states */
+  .content-node { cursor: default; }
+  .node-outer   { transition: stroke 0.25s, opacity 0.25s; }
+  .node-inner   { transition: stroke 0.25s; }
+  .content-node:hover .node-outer { stroke: #c8a84b; opacity: 0.9; }
+  .content-node:hover .node-inner { stroke: #9a7830; }
+
+  .link-btn          { cursor: pointer; }
+  .btn-bg            { transition: fill 0.2s, stroke 0.2s; }
+  .btn-text          { transition: fill 0.2s; }
+  .link-btn:hover .btn-bg   { fill: #3a2a10; stroke: #c8a84b; }
+  .link-btn:hover .btn-text { fill: #ffe090; }
+
+  /* ── BOTTOM CONTENT LIST ── */
+  .content-list {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 44px 24px 0;
+    border-top: 1px solid rgba(200,168,75,0.12);
+  }
+  .list-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #7a6230;
+    text-align: center;
+    margin-bottom: 22px;
+  }
+  .list-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 10px;
+    margin-bottom: 44px;
+  }
+  @media (max-width: 680px) { .list-grid { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 400px) { .list-grid { grid-template-columns: repeat(2, 1fr); } }
+
+  .list-card {
+    background: #1a1408;
+    border: 1px solid rgba(200,168,75,0.1);
+    border-radius: 2px;
+    padding: 14px 10px;
+    text-align: center;
+    transition: border-color 0.2s;
+  }
+  .list-card:hover { border-color: rgba(200,168,75,0.3); }
+  .list-icon { font-size: 16px; display: block; margin-bottom: 6px; }
+  .list-type {
+    font-family: 'DM Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #c8a84b;
+    opacity: 0.7;
+    margin-bottom: 8px;
+  }
+  .list-links { display: flex; flex-direction: column; gap: 3px; }
+  .list-link {
+    font-family: 'DM Mono', monospace;
+    font-size: 8px;
+    color: #8a7040;
+    text-decoration: none;
+    letter-spacing: 0.04em;
+    padding: 2px 0;
+    border-top: 1px solid rgba(200,168,75,0.07);
+    transition: color 0.2s;
+  }
+  .list-link:hover { color: #c8a84b; }
+
+  /* ── AUTHOR SECTION ── */
+  .author-wrap {
+    border: 1px solid rgba(200,168,75,0.18);
+    border-radius: 2px;
+    padding: 28px 24px 32px;
+    text-align: center;
+    max-width: 560px;
+    margin: 0 auto 52px;
+  }
+  .produced-by {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #6a5830;
+    margin-bottom: 10px;
+  }
+  .author-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 26px;
+    font-weight: 400;
+    color: #e8dfc0;
+  }
+  .author-divider {
+    width: 36px;
+    height: 1px;
+    background: rgba(200,168,75,0.3);
+    margin: 14px auto;
+  }
+  .author-role {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 13px;
+    font-style: italic;
+    color: #8a7040;
+    line-height: 1.7;
+  }
+</style>
+</head>
+<body>
+
+<!-- ── PAGE HEADER ── -->
+<div class="page-header">
+  <div class="eyebrow">Production Map · AI Competence · E71 · May 11, 2026</div>
+  <div class="page-title">Same World. <em>Different Game.</em></div>
+  <div class="page-sub">Zsolt Valér Zsofka · AI-Native Content Production · Budapest</div>
+</div>
+
+<!-- ── RADIAL MAP ── -->
+<div class="map-wrap">
+<svg class="map-svg" viewBox="0 0 1060 760" width="1060" height="760" xmlns="http://www.w3.org/2000/svg">
+
+  <defs>
+    <!-- Center glow -->
+    <filter id="cg" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="14" result="b"/>
+      <feColorMatrix in="b" type="matrix"
+        values="0 0 0 0 0.78  0 0 0 0 0.66  0 0 0 0 0.29  0 0 0 0.55 0" result="cb"/>
+      <feMerge><feMergeNode in="cb"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <!-- Node glow -->
+    <filter id="ng" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="5" result="b"/>
+      <feColorMatrix in="b" type="matrix"
+        values="0 0 0 0 0.7  0 0 0 0 0.58  0 0 0 0 0.22  0 0 0 0.3 0" result="cb"/>
+      <feMerge><feMergeNode in="cb"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <!-- Dot texture -->
+    <pattern id="dots" x="0" y="0" width="28" height="28" patternUnits="userSpaceOnUse">
+      <circle cx="14" cy="14" r="0.7" fill="#3a2e18" opacity="0.45"/>
+    </pattern>
+    <!-- Radial bg gradient -->
+    <radialGradient id="rbg" cx="50%" cy="51%" r="44%">
+      <stop offset="0%" stop-color="#2e2108" stop-opacity="0.45"/>
+      <stop offset="100%" stop-color="#120d05" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Backgrounds -->
+  <rect width="1060" height="760" fill="#120d05"/>
+  <rect width="1060" height="760" fill="url(#dots)"/>
+  <rect width="1060" height="760" fill="url(#rbg)"/>
+
+  <!-- Orbit rings -->
+  <circle cx="530" cy="390" r="220" fill="none" stroke="#2e2410" stroke-width="0.8" stroke-dasharray="2 5" opacity="0.5"/>
+  <circle cx="530" cy="390" r="140" fill="none" stroke="#261e0c" stroke-width="0.6" opacity="0.4"/>
+
+  <!-- ── SOLID LINES: center → content nodes ── -->
+  <!-- center circle edge to node circle edge -->
+  <!-- Podcast (530,178): straight up -->
+  <line x1="530" y1="318" x2="530" y2="222" stroke="#5a4318" stroke-width="1" opacity="0.75"/>
+  <!-- Debate (714,283): upper-right -->
+  <line x1="592" y1="354" x2="676" y2="305" stroke="#5a4318" stroke-width="1" opacity="0.75"/>
+  <!-- Music I (714,497): lower-right -->
+  <line x1="592" y1="426" x2="676" y2="475" stroke="#5a4318" stroke-width="1" opacity="0.75"/>
+  <!-- Music II (530,602): straight down -->
+  <line x1="530" y1="462" x2="530" y2="558" stroke="#5a4318" stroke-width="1" opacity="0.75"/>
+  <!-- Explainer (346,497): lower-left -->
+  <line x1="468" y1="426" x2="384" y2="475" stroke="#5a4318" stroke-width="1" opacity="0.75"/>
+  <!-- LinkedIn (346,283): upper-left -->
+  <line x1="468" y1="354" x2="384" y2="305" stroke="#5a4318" stroke-width="1" opacity="0.75"/>
+
+  <!-- ── DASHED LINES: nodes → link buttons ── -->
+
+  <!-- PODCAST → buttons (fork from top edge of node) -->
+  <line x1="530" y1="134" x2="530" y2="92" stroke="#5a4318" stroke-width="0.8" stroke-dasharray="3 3" opacity="0.6"/>
+  <line x1="530" y1="92"  x2="452" y2="72" stroke="#5a4318" stroke-width="0.8" stroke-dasharray="3 3" opacity="0.6"/>
+  <line x1="530" y1="92"  x2="614" y2="72" stroke="#5a4318" stroke-width="0.8" stroke-dasharray="3 3" opacity="0.6"/>
+
+  <!-- DEBATE → buttons (fork from right edge) -->
+  <line x1="758" y1="283" x2="796" y2="263" stroke="#5a4318" stroke-width="0.8" stroke-dasharray="3 3" opacity="0.6"/>
+  <line x1="796" y1="263" x2="828" y2="241" stroke="#5a4318" stroke-width="0.8" stroke-dasharray="3 3" opacity="0.6"/>
+  <line x1="796" y1="263" x2="828" y2="285" stroke="#5a4318" stroke-width="0.8" stroke-dasharray="3 3" opacity="0.6"/>
+
+  <!-- MUSIC I → button (right) -->
+  <line x1="758" y1="497" x2="840" y2="497" stroke="#5a4318" stroke-width="0.8" stroke-dasharray="3 3" opacity="0.6"/>
+
+  <!-- MUSIC II → button (below, angled) -->
+  <line x1="530" y1="648" x2="530" y2="678" stroke="#5a4318" stroke-width="0.8" stroke-dasharray="3 3" opacity="0.6"/>
+  <line x1="530" y1="678" x2="462" y2="698" stroke="#5a4318" stroke-width="0.8" stroke-dasharray="3 3" opacity="0.6"/>
+
+  <!-- EXPLAINER → button (left) -->
+  <line x1="302" y1="497" x2="218" y2="497" stroke="#5a4318" stroke-width="0.8" stroke-dasharray="3 3" opacity="0.6"/>
+
+  <!-- LINKEDIN → button (left, angled up) -->
+  <line x1="302" y1="283" x2="192" y2="260" stroke="#5a4318" stroke-width="0.8" stroke-dasharray="3 3" opacity="0.6"/>
+
+  <!-- ── FLOATING AREA LABELS ── -->
+  <text x="152" y="192" text-anchor="middle" font-family="'DM Mono', monospace"
+        font-size="8" fill="#4a3c1c" letter-spacing="2" opacity="0.7"
+        transform="rotate(-30 152 192)">WRITTEN WORD</text>
+
+  <text x="908" y="192" text-anchor="middle" font-family="'DM Mono', monospace"
+        font-size="8" fill="#4a3c1c" letter-spacing="2" opacity="0.7"
+        transform="rotate(30 908 192)">VIDEO · DEBATE</text>
+
+  <text x="908" y="588" text-anchor="middle" font-family="'DM Mono', monospace"
+        font-size="8" fill="#4a3c1c" letter-spacing="2" opacity="0.7"
+        transform="rotate(-30 908 588)">AUDIO · MUSIC</text>
+
+  <text x="152" y="588" text-anchor="middle" font-family="'DM Mono', monospace"
+        font-size="8" fill="#4a3c1c" letter-spacing="2" opacity="0.7"
+        transform="rotate(30 152 588)">VISUAL · EXPLAIN</text>
+
+  <text x="530" y="735" text-anchor="middle" font-family="'DM Mono', monospace"
+        font-size="8" fill="#4a3c1c" letter-spacing="2" opacity="0.6">AUDIO · MUSIC</text>
+
+  <!-- ── CENTER NODE ── -->
+  <g filter="url(#cg)">
+    <circle cx="530" cy="390" r="88"  fill="none" stroke="#c8a84b" stroke-width="0.5" opacity="0.18"/>
+    <circle cx="530" cy="390" r="76"  fill="#1e1508" stroke="#c8a84b" stroke-width="1.5"/>
+    <circle cx="530" cy="390" r="70"  fill="none" stroke="#7a5e20" stroke-width="0.5" opacity="0.45"/>
+  </g>
+  <text x="530" y="370" text-anchor="middle"
+        font-family="'DM Mono', monospace" font-size="8"
+        fill="#c8a84b" letter-spacing="2.5" opacity="0.85">AI COMPETENCE</text>
+  <text x="530" y="390" text-anchor="middle"
+        font-family="'Cormorant Garamond', serif" font-size="15"
+        fill="#e8dfc0" font-style="italic" font-weight="300">Same World.</text>
+  <text x="530" y="408" text-anchor="middle"
+        font-family="'Cormorant Garamond', serif" font-size="15"
+        fill="#c8a84b" font-style="italic" font-weight="300">Different Game.</text>
+  <text x="530" y="424" text-anchor="middle"
+        font-family="'DM Mono', monospace" font-size="8"
+        fill="#6a5020" letter-spacing="1.5">E · 71</text>
+
+  <!-- ── NODE: PODCAST (530, 178) ── -->
+  <g class="content-node" filter="url(#ng)">
+    <circle class="node-outer" cx="530" cy="178" r="46" fill="#1c1508" stroke="#6a5020" stroke-width="1" opacity="0.85"/>
+    <circle class="node-inner" cx="530" cy="178" r="40" fill="none"   stroke="#4a3810" stroke-width="0.5" opacity="0.5"/>
+  </g>
+  <text x="530" y="173" text-anchor="middle"
+        font-family="'Cormorant Garamond', serif" font-size="13"
+        fill="#e0d4b0" font-style="italic">Podcast</text>
+  <text x="530" y="188" text-anchor="middle"
+        font-family="'DM Mono', monospace" font-size="7.5"
+        fill="#8a7040" letter-spacing="0.8">Video</text>
+
+  <!-- PODCAST link buttons -->
+  <a href="https://youtu.be/EwNRPpXcGCg" target="_blank" class="link-btn">
+    <rect class="btn-bg" x="404" y="61" width="96" height="22" rx="2"
+          fill="#1e1608" stroke="#7a5e20" stroke-width="0.8"/>
+    <text class="btn-text" x="452" y="76" text-anchor="middle"
+          font-family="'DM Mono', monospace" font-size="8.5"
+          fill="#c8a84b" letter-spacing="0.5">▶ YOUTUBE</text>
+  </a>
+  <a href="https://x.com/ZVZx1965/status/2053782685617672466" target="_blank" class="link-btn">
+    <rect class="btn-bg" x="566" y="61" width="96" height="22" rx="2"
+          fill="#1e1608" stroke="#7a5e20" stroke-width="0.8"/>
+    <text class="btn-text" x="614" y="76" text-anchor="middle"
+          font-family="'DM Mono', monospace" font-size="8.5"
+          fill="#c8a84b" letter-spacing="0.5">✕ POST</text>
+  </a>
+
+  <!-- ── NODE: DEBATE (714, 283) ── -->
+  <g class="content-node" filter="url(#ng)">
+    <circle class="node-outer" cx="714" cy="283" r="46" fill="#1c1508" stroke="#6a5020" stroke-width="1" opacity="0.85"/>
+    <circle class="node-inner" cx="714" cy="283" r="40" fill="none"   stroke="#4a3810" stroke-width="0.5" opacity="0.5"/>
+  </g>
+  <text x="714" y="278" text-anchor="middle"
+        font-family="'Cormorant Garamond', serif" font-size="13"
+        fill="#e0d4b0" font-style="italic">Debate</text>
+  <text x="714" y="293" text-anchor="middle"
+        font-family="'DM Mono', monospace" font-size="7.5"
+        fill="#8a7040" letter-spacing="0.8">Video</text>
+
+  <!-- DEBATE link buttons -->
+  <a href="https://youtu.be/k9FX6EeTsS0" target="_blank" class="link-btn">
+    <rect class="btn-bg" x="828" y="230" width="96" height="22" rx="2"
+          fill="#1e1608" stroke="#7a5e20" stroke-width="0.8"/>
+    <text class="btn-text" x="876" y="245" text-anchor="middle"
+          font-family="'DM Mono', monospace" font-size="8.5"
+          fill="#c8a84b" letter-spacing="0.5">▶ YOUTUBE</text>
+  </a>
+  <a href="https://x.com/ZVZx1965/status/2053776537355264409" target="_blank" class="link-btn">
+    <rect class="btn-bg" x="828" y="274" width="96" height="22" rx="2"
+          fill="#1e1608" stroke="#7a5e20" stroke-width="0.8"/>
+    <text class="btn-text" x="876" y="289" text-anchor="middle"
+          font-family="'DM Mono', monospace" font-size="8.5"
+          fill="#c8a84b" letter-spacing="0.5">✕ POST</text>
+  </a>
+
+  <!-- ── NODE: MUSIC I (714, 497) ── -->
+  <g class="content-node" filter="url(#ng)">
+    <circle class="node-outer" cx="714" cy="497" r="46" fill="#1c1508" stroke="#6a5020" stroke-width="1" opacity="0.85"/>
+    <circle class="node-inner" cx="714" cy="497" r="40" fill="none"   stroke="#4a3810" stroke-width="0.5" opacity="0.5"/>
+  </g>
+  <text x="714" y="489" text-anchor="middle"
+        font-family="'Cormorant Garamond', serif" font-size="13"
+        fill="#e0d4b0" font-style="italic">Music</text>
+  <text x="714" y="504" text-anchor="middle"
+        font-family="'DM Mono', monospace" font-size="7.5"
+        fill="#8a7040" letter-spacing="0.8">Release I</text>
+
+  <!-- MUSIC I link button -->
+  <a href="https://youtu.be/rHXpD7MAOUM" target="_blank" class="link-btn">
+    <rect class="btn-bg" x="840" y="486" width="96" height="22" rx="2"
+          fill="#1e1608" stroke="#7a5e20" stroke-width="0.8"/>
+    <text class="btn-text" x="888" y="501" text-anchor="middle"
+          font-family="'DM Mono', monospace" font-size="8.5"
+          fill="#c8a84b" letter-spacing="0.5">▶ YOUTUBE</text>
+  </a>
+
+  <!-- ── NODE: MUSIC II (530, 602) ── -->
+  <g class="content-node" filter="url(#ng)">
+    <circle class="node-outer" cx="530" cy="602" r="46" fill="#1c1508" stroke="#6a5020" stroke-width="1" opacity="0.85"/>
+    <circle class="node-inner" cx="530" cy="602" r="40" fill="none"   stroke="#4a3810" stroke-width="0.5" opacity="0.5"/>
+  </g>
+  <text x="530" y="597" text-anchor="middle"
+        font-family="'Cormorant Garamond', serif" font-size="13"
+        fill="#e0d4b0" font-style="italic">Music</text>
+  <text x="530" y="612" text-anchor="middle"
+        font-family="'DM Mono', monospace" font-size="7.5"
+        fill="#8a7040" letter-spacing="0.8">Release II</text>
+
+  <!-- MUSIC II link button -->
+  <a href="https://youtu.be/zqQ-hZm7l_c" target="_blank" class="link-btn">
+    <rect class="btn-bg" x="414" y="687" width="96" height="22" rx="2"
+          fill="#1e1608" stroke="#7a5e20" stroke-width="0.8"/>
+    <text class="btn-text" x="462" y="702" text-anchor="middle"
+          font-family="'DM Mono', monospace" font-size="8.5"
+          fill="#c8a84b" letter-spacing="0.5">▶ YOUTUBE</text>
+  </a>
+
+  <!-- ── NODE: VISUAL EXPLAINER (346, 497) ── -->
+  <g class="content-node" filter="url(#ng)">
+    <circle class="node-outer" cx="346" cy="497" r="46" fill="#1c1508" stroke="#6a5020" stroke-width="1" opacity="0.85"/>
+    <circle class="node-inner" cx="346" cy="497" r="40" fill="none"   stroke="#4a3810" stroke-width="0.5" opacity="0.5"/>
+  </g>
+  <text x="346" y="489" text-anchor="middle"
+        font-family="'Cormorant Garamond', serif" font-size="12"
+        fill="#e0d4b0" font-style="italic">Visual</text>
+  <text x="346" y="504" text-anchor="middle"
+        font-family="'Cormorant Garamond', serif" font-size="12"
+        fill="#e0d4b0" font-style="italic">Explainer</text>
+
+  <!-- EXPLAINER link button -->
+  <a href="https://youtu.be/KZ6bXNC-n1o" target="_blank" class="link-btn">
+    <rect class="btn-bg" x="122" y="486" width="96" height="22" rx="2"
+          fill="#1e1608" stroke="#7a5e20" stroke-width="0.8"/>
+    <text class="btn-text" x="170" y="501" text-anchor="middle"
+          font-family="'DM Mono', monospace" font-size="8.5"
+          fill="#c8a84b" letter-spacing="0.5">▶ YOUTUBE</text>
+  </a>
+
+  <!-- ── NODE: LINKEDIN ARTICLE (346, 283) ── -->
+  <g class="content-node" filter="url(#ng)">
+    <circle class="node-outer" cx="346" cy="283" r="46" fill="#1c1508" stroke="#6a5020" stroke-width="1" opacity="0.85"/>
+    <circle class="node-inner" cx="346" cy="283" r="40" fill="none"   stroke="#4a3810" stroke-width="0.5" opacity="0.5"/>
+  </g>
+  <text x="346" y="275" text-anchor="middle"
+        font-family="'Cormorant Garamond', serif" font-size="12"
+        fill="#e0d4b0" font-style="italic">LinkedIn</text>
+  <text x="346" y="290" text-anchor="middle"
+        font-family="'Cormorant Garamond', serif" font-size="12"
+        fill="#e0d4b0" font-style="italic">Article</text>
+
+  <!-- LINKEDIN link button -->
+  <a href="https://www.linkedin.com/pulse/same-world-different-game-zsolt-zsofka-j7adc" target="_blank" class="link-btn">
+    <rect class="btn-bg" x="96" y="249" width="96" height="22" rx="2"
+          fill="#1e1608" stroke="#7a5e20" stroke-width="0.8"/>
+    <text class="btn-text" x="144" y="264" text-anchor="middle"
+          font-family="'DM Mono', monospace" font-size="8.5"
+          fill="#c8a84b" letter-spacing="0.5">in ARTICLE</text>
+  </a>
+
+</svg>
+</div>
+
+<!-- ── BOTTOM: CONTENT INDEX ── -->
+<div class="content-list">
+  <div class="list-label">This Release · Full Content Index</div>
+  <div class="list-grid">
+
+    <div class="list-card">
+      <span class="list-icon">⚖️</span>
+      <div class="list-type">Debate</div>
+      <div class="list-links">
+        <a class="list-link" href="https://youtu.be/k9FX6EeTsS0" target="_blank">▶ YouTube</a>
+        <a class="list-link" href="https://x.com/ZVZx1965/status/2053776537355264409" target="_blank">✕ Post</a>
+      </div>
+    </div>
+
+    <div class="list-card">
+      <span class="list-icon">🎙</span>
+      <div class="list-type">Podcast</div>
+      <div class="list-links">
+        <a class="list-link" href="https://youtu.be/EwNRPpXcGCg" target="_blank">▶ YouTube</a>
+        <a class="list-link" href="https://x.com/ZVZx1965/status/2053782685617672466" target="_blank">✕ Post</a>
+      </div>
+    </div>
+
+    <div class="list-card">
+      <span class="list-icon">♪</span>
+      <div class="list-type">Music I</div>
+      <div class="list-links">
+        <a class="list-link" href="https://youtu.be/rHXpD7MAOUM" target="_blank">▶ YouTube</a>
+      </div>
+    </div>
+
+    <div class="list-card">
+      <span class="list-icon">♫</span>
+      <div class="list-type">Music II</div>
+      <div class="list-links">
+        <a class="list-link" href="https://youtu.be/zqQ-hZm7l_c" target="_blank">▶ YouTube</a>
+      </div>
+    </div>
+
+    <div class="list-card">
+      <span class="list-icon">◈</span>
+      <div class="list-type">Explainer</div>
+      <div class="list-links">
+        <a class="list-link" href="https://youtu.be/KZ6bXNC-n1o" target="_blank">▶ YouTube</a>
+      </div>
+    </div>
+
+    <div class="list-card">
+      <span class="list-icon">✍</span>
+      <div class="list-type">Article</div>
+      <div class="list-links">
+        <a class="list-link" href="https://www.linkedin.com/pulse/same-world-different-game-zsolt-zsofka-j7adc" target="_blank">in LinkedIn</a>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Author -->
+  <div class="author-wrap">
+    <div class="produced-by">Produced by</div>
+    <div class="author-name">Zsolt Valér Zsofka</div>
+    <div class="author-divider"></div>
+    <div class="author-role">
+      AI-Native Content Producer · Hybrid Intelligence<br>
+      Budapest, Hungary · E71 Series · May 11, 2026
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
